@@ -194,9 +194,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 }}
               </ClientOnly>
               <div
-                className={classNames('relative w-full max-w-chat mx-auto z-prompt', {
-                  'sticky bottom-0': chatStarted,
-                })}
+                className={classNames(
+                  'relative w-full max-w-chat mx-auto z-prompt bg-bolt-elements-background-depth-1',
+                  {
+                    'sticky bottom-0': chatStarted,
+                  }
+                )}
               >
                 <ModelSelector
                   key={provider?.name + ':' + modelList.length}
@@ -215,12 +218,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   />}
                 <div
                   className={classNames(
-                    'shadow-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background backdrop-filter backdrop-blur-[8px] rounded-lg overflow-hidden transition-all',
+                    'shadow-lg border border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 rounded-lg overflow-hidden transition-all',
                   )}
                 >
                   <textarea
                     ref={textareaRef}
-                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus resize-none text-md text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent transition-all`}
+                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus resize-none text-md text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-bolt-elements-background-depth-2 transition-all`}
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
                         if (event.shiftKey) {
