@@ -14,7 +14,7 @@ import { saveAs } from 'file-saver';
 import { Octokit, type RestEndpointMethodTypes } from "@octokit/rest";
 import * as nodePath from 'node:path';
 import type { WebContainerProcess } from '@webcontainer/api';
-import type { Terminal } from 'xterm';
+import type { Terminal } from '@xterm/xterm';
 import { toast } from 'react-toastify';
 import { db, getAll, deleteById, setMessages } from '~/lib/persistence';
 
