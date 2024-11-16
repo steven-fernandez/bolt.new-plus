@@ -58,6 +58,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
               chatStore.setKey('showChat', !showChat);
             }
           }}
+          title="Hide / Show Chat"
         >
           <div className="i-bolt:chat text-sm" />
         </Button>
