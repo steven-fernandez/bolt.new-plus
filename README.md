@@ -24,6 +24,7 @@ This fork of Bolt.new allows you to choose the LLM that you use for each prompt!
 - ✅ Add project name search filter (@steven-fernandez)
 - ✅ Add Editor fullscreen mode (@steven-fernandez)
 - ✅ Export project with metadata and chat history (@steven-fernandez)
+- ✅ Import project backups including chat history (@steven-fernandez)
 - ⬜ **HIGH PRIORITY** - Prevent Bolt from rewriting files as often (file locking and diffs)
 - ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
 - ⬜ **HIGH PRIORITY** Load local projects into the app
