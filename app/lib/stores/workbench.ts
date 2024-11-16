@@ -16,7 +16,7 @@ import * as nodePath from 'node:path';
 import type { WebContainerProcess } from '@webcontainer/api';
 import type { Terminal } from 'xterm';
 import { toast } from 'react-toastify';
-import { db, getAll } from '~/lib/persistence';
+import { db, getAll, deleteById, setMessages } from '~/lib/persistence';
 
 export interface ArtifactState {
   id: string;
@@ -540,6 +540,145 @@ export class WorkbenchStore {
     } catch (error) {
       console.error('Failed to export project:', error);
       toast.error('Failed to export project');
+    }
+  }
+
+  async importProjectBackup(file: File) {
+    try {
+      console.log('Starting import process for file:', file.name);
+      const zip = await JSZip.loadAsync(file);
+      
+      // Validate backup structure
+      const metadata = zip.file('metadata.json');
+      const chatHistory = zip.file('chat_history.json');
+      const codeFolder = zip.folder('code');
+      
+      if (!metadata || !chatHistory || !codeFolder) {
+        console.error('Missing required files/folders:', {
+          hasMetadata: !!metadata,
+          hasChatHistory: !!chatHistory,
+          hasCodeFolder: !!codeFolder
+        });
+        toast.error('Invalid backup file format');
+        return;
+      }
+
+      // Read and validate metadata
+      const metadataContent = await metadata.async('string');
+      const metadataJson = JSON.parse(metadataContent);
+      console.log('Metadata:', metadataJson);
+      
+      if (!metadataJson.version || !metadataJson.exportDate) {
+        console.error('Invalid metadata format:', metadataJson);
+        toast.error('Invalid backup metadata');
+        return;
+      }
+
+      // Start the restore process
+      toast.info('Starting project restore...');
+
+      // Restore chat history
+      try {
+        const chatHistoryContent = await chatHistory.async('string');
+        const chatHistoryJson = JSON.parse(chatHistoryContent);
+        console.log('Chat history entries:', chatHistoryJson.length);
+        
+        if (Array.isArray(chatHistoryJson) && db) {
+          // Clear existing history first
+          const existingHistory = await getAll(db);
+          console.log('Clearing existing history entries:', existingHistory.length);
+          for (const item of existingHistory) {
+            await deleteById(db, item.id);
+          }
+
+          // Restore backed up history
+          console.log('Restoring chat history entries...');
+          for (const item of chatHistoryJson) {
+            await setMessages(
+              db,
+              item.id,
+              item.messages,
+              item.urlId,
+              item.description
+            );
+          }
+        }
+      } catch (error) {
+        console.error('Failed to restore chat history:', error);
+        toast.error('Failed to restore chat history');
+        return;
+      }
+
+      // Restore code files
+      try {
+        const wc = await webcontainer;
+        console.log('Webcontainer ready');
+
+        // Clear existing files
+        console.log('Clearing existing files...');
+        try {
+          await wc.fs.rm('/home/project', { recursive: true }).catch(() => {
+            // Ignore error if directory doesn't exist
+          });
+          await wc.fs.mkdir('/home/project');
+        } catch (error) {
+          console.error('Error managing project directory:', error);
+        }
+
+        // Process each file in the code folder
+        console.log('Starting file restoration...');
+        const files = codeFolder.files;
+        
+        for (const [path, zipEntry] of Object.entries(files)) {
+          if (!zipEntry.dir) {
+            try {
+              const content = await zipEntry.async('string');
+              // Remove any leading slashes and ensure proper path
+              const cleanPath = path.replace(/^\/+/, '');
+              const fullPath = `/home/project/${cleanPath}`;
+              console.log('Restoring file:', fullPath);
+              
+              // Create parent directories if needed
+              const parentDir = fullPath.substring(0, fullPath.lastIndexOf('/'));
+              if (parentDir !== '/home/project') {
+                console.log('Creating directory:', parentDir);
+                try {
+                  await wc.fs.mkdir(parentDir, { recursive: true });
+                } catch (dirError) {
+                  console.error(`Failed to create directory ${parentDir}:`, dirError);
+                }
+              }
+              
+              // Write the file
+              await wc.fs.writeFile(fullPath, content);
+              console.log('Successfully wrote file:', fullPath);
+            } catch (error) {
+              console.error(`Failed to process file ${path}:`, error);
+            }
+          }
+        }
+
+        // Refresh the editor view
+        console.log('Refreshing editor view...');
+        this.setDocuments(this.files.get());
+        
+        toast.success('Project restored successfully');
+        console.log('Project restore completed successfully');
+        
+        // Refresh the page with a delay
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+
+      } catch (error) {
+        console.error('Failed to restore project files:', error);
+        toast.error('Failed to restore project files. Check console for details.');
+        return;
+      }
+
+    } catch (error) {
+      console.error('Failed to restore project:', error);
+      toast.error('Failed to restore project backup');
     }
   }
 }

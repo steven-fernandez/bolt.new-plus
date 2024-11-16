@@ -9,6 +9,7 @@ import { cubicEasingFn } from '~/utils/easings';
 import { logger } from '~/utils/logger';
 import { HistoryItem } from './HistoryItem';
 import { binDates } from './date-binning';
+import { workbenchStore } from '~/lib/stores/workbench';
 
 const menuVariants = {
   closed: {
@@ -163,11 +164,15 @@ export function Menu() {
               const input = document.createElement('input');
               input.type = 'file';
               input.accept = '.zip';
-              input.onchange = (e) => {
+              input.onchange = async (e) => {
                 const file = (e.target as HTMLInputElement).files?.[0];
                 if (file) {
-                  // TODO: Implement restore functionality
-                  console.log('Restore from:', file);
+                  try {
+                    await workbenchStore.importProjectBackup(file);
+                  } catch (error) {
+                    console.error('Failed to import project:', error);
+                    toast.error('Failed to import project backup');
+                  }
                 }
               };
               input.click();
@@ -175,7 +180,7 @@ export function Menu() {
             className="flex gap-2 items-center w-full bg-bolt-elements-sidebar-buttonBackgroundDefault text-bolt-elements-sidebar-buttonText hover:bg-bolt-elements-sidebar-buttonBackgroundHover rounded-md p-2 transition-theme"
           >
             <span className="inline-block i-ph:upload-simple scale-110" />
-            Import backed up project
+            Import project backup
           </button>
         </div>
         <div className="px-4 mb-2">
