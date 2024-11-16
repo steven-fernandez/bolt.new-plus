@@ -57,6 +57,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
   renderLogger.trace('Workbench');
 
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const hasPreview = useStore(computed(workbenchStore.previews, (previews) => previews.length > 0));
   const showWorkbench = useStore(workbenchStore.showWorkbench);
@@ -117,25 +118,35 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
     }
   }, []);
 
+  const containerClasses = classNames(
+    'fixed transition-all duration-200 bolt-ease-cubic-bezier',
+    {
+      'w-[var(--workbench-inner-width)] mr-4 z-0 top-[calc(var(--header-height)+1.5rem)] bottom-6 left-[var(--workbench-left)]': !isFullscreen && showWorkbench,
+      'left-[100%]': !showWorkbench,
+      'top-0 left-0 right-0 bottom-0 m-0 w-full z-[9999]': isFullscreen,
+    }
+  );
+
   return (
     chatStarted && (
       <motion.div
         initial="closed"
         animate={showWorkbench ? 'open' : 'closed'}
         variants={workbenchVariants}
-        className="z-workbench"
+        className={classNames("z-workbench", {
+          "fixed inset-0 w-full z-[9999]": isFullscreen
+        })}
       >
-        <div
-          className={classNames(
-            'fixed top-[calc(var(--header-height)+1.5rem)] bottom-6 w-[var(--workbench-inner-width)] mr-4 z-0 transition-[left,width] duration-200 bolt-ease-cubic-bezier',
-            {
-              'left-[var(--workbench-left)]': showWorkbench,
-              'left-[100%]': !showWorkbench,
-            },
-          )}
-        >
-          <div className="absolute inset-0 px-6">
-            <div className="h-full flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm rounded-lg overflow-hidden">
+        <div className={containerClasses}>
+          <div className={classNames("absolute inset-0", {
+            "px-6": !isFullscreen
+          })}>
+            <div className={classNames(
+              "h-full flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm overflow-hidden",
+              {
+                "rounded-lg": !isFullscreen
+              }
+            )}>
               <div className="flex items-center px-3 py-2 border-b border-bolt-elements-borderColor">
                 <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
                 <div className="ml-auto" />
@@ -185,6 +196,13 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                     />
                   </>
                 )}
+                <IconButton
+                  icon={isFullscreen ? "i-ph:corners-in" : "i-ph:corners-out"}
+                  title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+                  className="mr-1"
+                  size="xl"
+                  onClick={() => setIsFullscreen(!isFullscreen)}
+                />
                 <IconButton
                   icon="i-ph:x-circle"
                   title="Close Editor"
