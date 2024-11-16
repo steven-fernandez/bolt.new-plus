@@ -43,10 +43,7 @@ export class WorkbenchStore {
   modifiedFiles = new Set<string>();
   artifactIdList: string[] = [];
   #boltTerminal: { terminal: ITerminal; process: WebContainerProcess } | undefined;
-  showTerminal = atom(false);
   showPreview = atom(false);
-  boltTerminal = atom<Terminal | undefined>(undefined);
-  terminal = atom<Terminal | undefined>(undefined);
 
   constructor() {
     if (import.meta.hot) {
@@ -84,12 +81,9 @@ export class WorkbenchStore {
   get showTerminal() {
     return this.#terminalStore.showTerminal;
   }
-  get boltTerminal() {
-    return this.#terminalStore.boltTerminal;
-  }
 
   toggleTerminal(value?: boolean) {
-    this.showTerminal.set(value ?? !this.showTerminal.get());
+    this.#terminalStore.toggleTerminal(value);
   }
 
   togglePreview(value?: boolean) {
@@ -97,11 +91,11 @@ export class WorkbenchStore {
   }
 
   attachTerminal(terminal: Terminal) {
-    this.terminal.set(terminal);
+    this.#terminalStore.attachTerminal(terminal);
   }
 
   attachBoltTerminal(terminal: Terminal) {
-    this.boltTerminal.set(terminal);
+    this.#terminalStore.attachBoltTerminal(terminal);
   }
 
   onTerminalResize(cols: number, rows: number) {
@@ -251,7 +245,7 @@ export class WorkbenchStore {
       id,
       title,
       closed: false,
-      runner: new ActionRunner(webcontainer, () => this.boltTerminal),
+      runner: new ActionRunner(webcontainer, () => this.#terminalStore.boltTerminal),
     });
   }
 
@@ -285,8 +279,9 @@ export class WorkbenchStore {
     if (!artifact) {
       unreachable('Artifact not found');
     }
+
     if (data.action.type === 'file') {
-      let wc = await webcontainer
+      let wc = await webcontainer;
       const fullPath = nodePath.join(wc.workdir, data.action.filePath);
       if (this.selectedFile.value !== fullPath) {
         this.setSelectedFile(fullPath);
@@ -306,7 +301,7 @@ export class WorkbenchStore {
         await artifact.runner.runAction(data);
       }
     } else {
-      artifact.runner.runAction(data);
+      await artifact.runner.runAction(data);
     }
   }
 
