@@ -52,7 +52,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         className="ml-2"
       >
         <div className="i-ph:download text-sm" />
-        <span className="ml-2">Export Project</span>
+        <span className="ml-2">Backup Project</span>
       </Button>
     </div>
   );
