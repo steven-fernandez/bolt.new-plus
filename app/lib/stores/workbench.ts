@@ -15,6 +15,8 @@ import { Octokit, type RestEndpointMethodTypes } from "@octokit/rest";
 import * as nodePath from 'node:path';
 import type { WebContainerProcess } from '@webcontainer/api';
 import type { Terminal } from 'xterm';
+import { toast } from 'react-toastify';
+import { db, getAll } from '~/lib/persistence';
 
 export interface ArtifactState {
   id: string;
@@ -473,6 +475,71 @@ export class WorkbenchStore {
       alert(`Repository created and code pushed: ${repo.html_url}`);
     } catch (error) {
       console.error('Error pushing to GitHub:', error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async exportProject() {
+    try {
+      const zip = new JSZip();
+      const files = this.files.get();
+
+      // Get the current project name from the first artifact or use "project" as default
+      const projectName = this.firstArtifact?.title?.toLowerCase().replace(/\s+/g, '-') || 'project';
+      
+      // Create datetime string in format YYYYMMDD-HHMMSS
+      const datetime = new Date().toISOString()
+        .replace(/[:\-T]/g, '')  // Remove colons, dashes, and T
+        .split('.')[0];  // Remove milliseconds and Z
+
+      // Create filename
+      const filename = `backup-${projectName}-${datetime}.zip`;
+
+      // Rest of the export code...
+      const codeFolder = zip.folder('code');
+      
+      // Add all code files
+      for (const [filePath, dirent] of Object.entries(files)) {
+        if (dirent?.type === 'file' && !dirent.isBinary) {
+          const relativePath = filePath.replace(/^\/home\/project\//, '');
+          const pathSegments = relativePath.split('/');
+
+          if (pathSegments.length > 1) {
+            let currentFolder = codeFolder;
+            for (let i = 0; i < pathSegments.length - 1; i++) {
+              currentFolder = currentFolder?.folder(pathSegments[i]);
+            }
+            currentFolder?.file(pathSegments[pathSegments.length - 1], dirent.content);
+          } else {
+            codeFolder?.file(relativePath, dirent.content);
+          }
+        }
+      }
+
+      // Export chat history
+      if (db) {
+        try {
+          const chatHistory = await getAll(db);
+          zip.file('chat_history.json', JSON.stringify(chatHistory, null, 2));
+        } catch (error) {
+          console.error('Failed to export chat history:', error);
+          toast.error('Failed to export chat history');
+        }
+      }
+
+      // Add metadata
+      const metadata = {
+        exportDate: new Date().toISOString(),
+        version: '1.0',
+        projectName,
+      };
+      zip.file('metadata.json', JSON.stringify(metadata, null, 2));
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      saveAs(content, filename);  // Use the new filename here
+      toast.success('Project exported successfully');
+    } catch (error) {
+      console.error('Failed to export project:', error);
+      toast.error('Failed to export project');
     }
   }
 }

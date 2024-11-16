@@ -11,8 +11,16 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
 
   const canHideChat = showWorkbench || !showChat;
 
+  const handleExport = async () => {
+    try {
+      await workbenchStore.exportProject();
+    } catch (error) {
+      console.error('Export failed:', error);
+    }
+  };
+
   return (
-    <div className="flex">
+    <div className="flex items-center gap-2">
       <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden">
         <Button
           active={showChat}
@@ -32,13 +40,20 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
             if (showWorkbench && !showChat) {
               chatStore.setKey('showChat', true);
             }
-
             workbenchStore.showWorkbench.set(!showWorkbench);
           }}
         >
           <div className="i-ph:code-bold" />
         </Button>
       </div>
+
+      <Button
+        onClick={handleExport}
+        className="ml-2"
+      >
+        <div className="i-ph:download text-sm" />
+        <span className="ml-2">Export Project</span>
+      </Button>
     </div>
   );
 }
@@ -48,9 +63,10 @@ interface ButtonProps {
   disabled?: boolean;
   children?: any;
   onClick?: VoidFunction;
+  className?: string;
 }
 
-function Button({ active = false, disabled = false, children, onClick }: ButtonProps) {
+function Button({ active = false, disabled = false, children, onClick, className = '' }: ButtonProps) {
   return (
     <button
       className={classNames('flex items-center p-1.5', {
@@ -59,8 +75,9 @@ function Button({ active = false, disabled = false, children, onClick }: ButtonP
         'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': active && !disabled,
         'bg-bolt-elements-item-backgroundDefault text-alpha-gray-20 dark:text-alpha-white-20 cursor-not-allowed':
           disabled,
-      })}
+      }, className)}
       onClick={onClick}
+      disabled={disabled}
     >
       {children}
     </button>
