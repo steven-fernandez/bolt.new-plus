@@ -494,8 +494,11 @@ export class WorkbenchStore {
       // Create filename
       const filename = `backup-${projectName}-${datetime}.zip`;
 
-      // Rest of the export code...
+      // Create code folder
       const codeFolder = zip.folder('code');
+      if (!codeFolder) {
+        throw new Error('Failed to create code folder');
+      }
       
       // Add all code files
       for (const [filePath, dirent] of Object.entries(files)) {
@@ -504,13 +507,21 @@ export class WorkbenchStore {
           const pathSegments = relativePath.split('/');
 
           if (pathSegments.length > 1) {
-            let currentFolder = codeFolder;
+            let currentFolder: JSZip = codeFolder;  // Initialize with codeFolder
+            
             for (let i = 0; i < pathSegments.length - 1; i++) {
-              currentFolder = currentFolder?.folder(pathSegments[i]);
+              const folderName = pathSegments[i];
+              const newFolder = currentFolder.folder(folderName);
+              if (!newFolder) {
+                throw new Error(`Failed to create folder: ${folderName}`);
+              }
+              currentFolder = newFolder;
             }
-            currentFolder?.file(pathSegments[pathSegments.length - 1], dirent.content);
+            
+            const fileName = pathSegments[pathSegments.length - 1];
+            currentFolder.file(fileName, dirent.content);
           } else {
-            codeFolder?.file(relativePath, dirent.content);
+            codeFolder.file(relativePath, dirent.content);
           }
         }
       }
