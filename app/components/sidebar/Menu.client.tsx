@@ -150,7 +150,7 @@ export function Menu() {
     >
       <div className="flex items-center h-[var(--header-height)]">{/* Placeholder */}</div>
       <div className="flex-1 flex flex-col h-full w-full overflow-hidden">
-        <div className="p-4">
+        <div className="p-4 space-y-2">
           <a
             href="/"
             className="flex gap-2 items-center bg-bolt-elements-sidebar-buttonBackgroundDefault text-bolt-elements-sidebar-buttonText hover:bg-bolt-elements-sidebar-buttonBackgroundHover rounded-md p-2 transition-theme"
@@ -158,6 +158,25 @@ export function Menu() {
             <span className="inline-block i-bolt:chat scale-110" />
             Start new project
           </a>
+          <button
+            onClick={() => {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = '.zip';
+              input.onchange = (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) {
+                  // TODO: Implement restore functionality
+                  console.log('Restore from:', file);
+                }
+              };
+              input.click();
+            }}
+            className="flex gap-2 items-center w-full bg-bolt-elements-sidebar-buttonBackgroundDefault text-bolt-elements-sidebar-buttonText hover:bg-bolt-elements-sidebar-buttonBackgroundHover rounded-md p-2 transition-theme"
+          >
+            <span className="inline-block i-ph:upload-simple scale-110" />
+            Import backed up project
+          </button>
         </div>
         <div className="px-4 mb-2">
           <input
