@@ -22,6 +22,7 @@ This fork of Bolt.new allows you to choose the LLM that you use for each prompt!
 - ✅ xAI Grok Beta Integration (@milutinke)
 - ✅ Add rename project name to the sidebar (@steven-fernandez)
 - ✅ Add project name search filter (@steven-fernandez)
+- ✅ Add Editor fullscreen mode (@steven-fernandez)
 - ⬜ **HIGH PRIORITY** - Prevent Bolt from rewriting files as often (file locking and diffs)
 - ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
 - ⬜ **HIGH PRIORITY** Load local projects into the app
