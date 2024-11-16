@@ -3,7 +3,6 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { IconButton } from '~/components/ui/IconButton';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { PortDropdown } from './PortDropdown';
-import { EditorOptionsDropdown } from './EditorOptionsDropdown';
 
 export const Preview = memo(() => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -12,7 +11,6 @@ export const Preview = memo(() => {
   const [isPortDropdownOpen, setIsPortDropdownOpen] = useState(false);
   const hasSelectedPreview = useRef(false);
   const previews = useStore(workbenchStore.previews);
-  const showTerminal = useStore(workbenchStore.showTerminal);
   const activePreview = previews[activePreviewIndex];
 
   const [url, setUrl] = useState('');
@@ -99,23 +97,16 @@ export const Preview = memo(() => {
             }}
           />
         </div>
-        <div className="flex items-center gap-2">
-          {previews.length > 1 && (
-            <PortDropdown
-              activePreviewIndex={activePreviewIndex}
-              setActivePreviewIndex={setActivePreviewIndex}
-              isDropdownOpen={isPortDropdownOpen}
-              setHasSelectedPreview={(value) => (hasSelectedPreview.current = value)}
-              setIsDropdownOpen={setIsPortDropdownOpen}
-              previews={previews}
-            />
-          )}
-          <EditorOptionsDropdown 
-            onDownloadFiles={() => workbenchStore.downloadZip()}
-            onSyncFiles={() => {/* Add your sync files handler */}}
-            onToggleTerminal={() => workbenchStore.toggleTerminal(!showTerminal)}
+        {previews.length > 1 && (
+          <PortDropdown
+            activePreviewIndex={activePreviewIndex}
+            setActivePreviewIndex={setActivePreviewIndex}
+            isDropdownOpen={isPortDropdownOpen}
+            setHasSelectedPreview={(value) => (hasSelectedPreview.current = value)}
+            setIsDropdownOpen={setIsPortDropdownOpen}
+            previews={previews}
           />
-        </div>
+        )}
       </div>
       <div className="flex-1 border-t border-bolt-elements-borderColor">
         {activePreview ? (
