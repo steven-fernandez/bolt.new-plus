@@ -31,7 +31,10 @@ const menuVariants = {
   },
 } satisfies Variants;
 
-type DialogContent = { type: 'delete'; item: ChatHistoryItem } | null;
+type DialogContent = 
+  | { type: 'delete'; item: ChatHistoryItem }
+  | { type: 'edit'; item: ChatHistoryItem }
+  | null;
 
 export function Menu() {
   const menuRef = useRef<HTMLDivElement>(null);
@@ -71,6 +74,36 @@ export function Menu() {
   const closeDialog = () => {
     setDialogContent(null);
   };
+
+  const updateItemDescription = useCallback((item: ChatHistoryItem, newDescription: string) => {
+    if (!db) {
+      toast.error('Database not initialized');
+      return;
+    }
+
+    try {
+      const transaction = db.transaction('chats', 'readwrite');
+      const store = transaction.objectStore('chats');
+      
+      const updatedItem = { ...item, description: newDescription };
+      
+      const request = store.put(updatedItem);
+      
+      request.onsuccess = () => {
+        loadEntries();
+        toast.success('Chat renamed successfully');
+        closeDialog();
+      };
+
+      request.onerror = (event) => {
+        toast.error('Failed to rename chat');
+        logger.error(event);
+      };
+    } catch (error) {
+      toast.error('Failed to update chat name');
+      logger.error(error);
+    }
+  }, [loadEntries, closeDialog]);
 
   useEffect(() => {
     if (open) {
@@ -128,7 +161,15 @@ export function Menu() {
                   {category}
                 </div>
                 {items.map((item) => (
-                  <HistoryItem key={item.id} item={item} onDelete={() => setDialogContent({ type: 'delete', item })} />
+                  <HistoryItem 
+                    key={item.id} 
+                    item={item} 
+                    onDelete={(event) => {
+                      event.preventDefault();
+                      setDialogContent({ type: 'delete', item });
+                    }}
+                    onEdit={() => setDialogContent({ type: 'edit', item })}
+                  />
                 ))}
               </div>
             ))}
@@ -158,6 +199,48 @@ export function Menu() {
                       Delete
                     </DialogButton>
                   </div>
+                </>
+              )}
+              {dialogContent?.type === 'edit' && (
+                <>
+                  <DialogTitle>Rename Chat</DialogTitle>
+                  <DialogDescription asChild>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const form = e.target as HTMLFormElement;
+                        const input = form.elements.namedItem('description') as HTMLInputElement;
+                        if (input.value.trim()) {
+                          updateItemDescription(dialogContent.item, input.value.trim());
+                        }
+                      }}
+                    >
+                      <div className="space-y-4">
+                        <input
+                          name="description"
+                          defaultValue={dialogContent.item.description}
+                          placeholder="Enter new name"
+                          autoFocus
+                          className="w-full px-3 py-2 
+                            bg-bolt-elements-background-depth-1
+                            border border-bolt-elements-borderColor
+                            rounded-md
+                            text-bolt-elements-textPrimary
+                            dark:text-white
+                            placeholder:text-bolt-elements-textTertiary
+                            focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus"
+                        />
+                        <div className="flex gap-2 justify-end">
+                          <DialogButton type="secondary" onClick={closeDialog}>
+                            Cancel
+                          </DialogButton>
+                          <DialogButton type="primary">
+                            Save
+                          </DialogButton>
+                        </div>
+                      </div>
+                    </form>
+                  </DialogDescription>
                 </>
               )}
             </Dialog>
