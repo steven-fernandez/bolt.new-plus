@@ -14,6 +14,7 @@ import { saveAs } from 'file-saver';
 import { Octokit, type RestEndpointMethodTypes } from "@octokit/rest";
 import * as nodePath from 'node:path';
 import type { WebContainerProcess } from '@webcontainer/api';
+import type { Terminal } from 'xterm';
 
 export interface ArtifactState {
   id: string;
@@ -42,6 +43,10 @@ export class WorkbenchStore {
   modifiedFiles = new Set<string>();
   artifactIdList: string[] = [];
   #boltTerminal: { terminal: ITerminal; process: WebContainerProcess } | undefined;
+  showTerminal = atom(false);
+  showPreview = atom(false);
+  boltTerminal = atom<Terminal | undefined>(undefined);
+  terminal = atom<Terminal | undefined>(undefined);
 
   constructor() {
     if (import.meta.hot) {
@@ -84,15 +89,19 @@ export class WorkbenchStore {
   }
 
   toggleTerminal(value?: boolean) {
-    this.#terminalStore.toggleTerminal(value);
+    this.showTerminal.set(value ?? !this.showTerminal.get());
   }
 
-  attachTerminal(terminal: ITerminal) {
-    this.#terminalStore.attachTerminal(terminal);
+  togglePreview(value?: boolean) {
+    this.showPreview.set(value ?? !this.showPreview.get());
   }
-  attachBoltTerminal(terminal: ITerminal) {
 
-    this.#terminalStore.attachBoltTerminal(terminal);
+  attachTerminal(terminal: Terminal) {
+    this.terminal.set(terminal);
+  }
+
+  attachBoltTerminal(terminal: Terminal) {
+    this.boltTerminal.set(terminal);
   }
 
   onTerminalResize(cols: number, rows: number) {

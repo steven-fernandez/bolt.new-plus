@@ -150,7 +150,7 @@ export const EditorPanel = memo(
                   <div className="flex items-center flex-1 text-sm">
                     <FileBreadcrumb pathSegments={activeFileSegments} files={files} onFileSelect={onFileSelect} />
                     {activeFileUnsaved && (
-                      <div className="flex gap-1 ml-auto -mr-1.5">
+                      <div className="flex gap-1 ml-auto">
                         <PanelHeaderButton onClick={onFileSave}>
                           <div className="i-ph:floppy-disk-duotone" />
                           Save

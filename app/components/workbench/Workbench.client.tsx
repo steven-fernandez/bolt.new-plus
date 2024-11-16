@@ -16,6 +16,7 @@ import { cubicEasingFn } from '~/utils/easings';
 import { renderLogger } from '~/utils/logger';
 import { EditorPanel } from './EditorPanel';
 import { Preview } from './Preview';
+import { EditorOptionsDropdown } from './EditorOptionsDropdown';
 
 interface WorkspaceProps {
   chatStarted?: boolean;
@@ -140,30 +141,29 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                 <div className="ml-auto" />
                 {selectedView === 'code' && (
                   <>
-                    <PanelHeaderButton
-                      className="mr-1 text-sm"
-                      onClick={() => {
-                        workbenchStore.downloadZip();
-                      }}
-                    >
-                      <div className="i-ph:code" />
-                      Download Code
-                    </PanelHeaderButton>
-                    <PanelHeaderButton className="mr-1 text-sm" onClick={handleSyncFiles} disabled={isSyncing}>
-                      {isSyncing ? <div className="i-ph:spinner" /> : <div className="i-ph:cloud-arrow-down" />}
-                      {isSyncing ? 'Syncing...' : 'Sync Files'}
-                    </PanelHeaderButton>
-                    <PanelHeaderButton
-                      className="mr-1 text-sm"
-                      onClick={() => {
-                        workbenchStore.toggleTerminal(!workbenchStore.showTerminal.get());
-                      }}
-                    >
-                      <div className="i-ph:terminal" />
-                      Toggle Terminal
-                    </PanelHeaderButton>
-                    <PanelHeaderButton
-                      className="mr-1 text-sm"
+                    <IconButton
+                      icon="i-ph:code"
+                      title="Download Code"
+                      className="mr-1"
+                      onClick={() => workbenchStore.downloadZip()}
+                    />
+                    <IconButton
+                      icon={isSyncing ? "i-ph:spinner" : "i-ph:cloud-arrow-down"}
+                      title={isSyncing ? "Syncing..." : "Sync Files"}
+                      className="mr-1"
+                      onClick={handleSyncFiles}
+                      disabled={isSyncing}
+                    />
+                    <IconButton
+                      icon="i-ph:terminal"
+                      title="Toggle Terminal"
+                      className="mr-1"
+                      onClick={() => workbenchStore.toggleTerminal(!workbenchStore.showTerminal.get())}
+                    />
+                    <IconButton
+                      icon="i-ph:github-logo"
+                      title="Push to GitHub"
+                      className="mr-1"
                       onClick={() => {
                         const repoName = prompt("Please enter a name for your new GitHub repository:", "bolt-generated-project");
                         if (!repoName) {
@@ -180,13 +180,9 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                           alert("GitHub token is required. Push to GitHub cancelled.");
                           return;
                         }
-                        
-                      workbenchStore.pushToGitHub(repoName, githubUsername, githubToken);  
+                        workbenchStore.pushToGitHub(repoName, githubUsername, githubToken);
                       }}
-                    >
-                      <div className="i-ph:github-logo" />
-                      Push to GitHub
-                    </PanelHeaderButton>
+                    />
                   </>
                 )}
                 <IconButton
