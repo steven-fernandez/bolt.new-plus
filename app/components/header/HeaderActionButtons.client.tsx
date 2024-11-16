@@ -5,6 +5,34 @@ import { classNames } from '~/utils/classNames';
 
 interface HeaderActionButtonsProps {}
 
+interface ButtonProps {
+  active?: boolean;
+  disabled?: boolean;
+  children?: any;
+  onClick?: VoidFunction;
+  className?: string;
+  title?: string;
+}
+
+function Button({ active = false, disabled = false, children, onClick, className = '', title }: ButtonProps) {
+  return (
+    <button
+      className={classNames('flex items-center p-1.5', {
+        'bg-bolt-elements-item-backgroundDefault hover:bg-bolt-elements-item-backgroundActive text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary':
+          !active,
+        'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': active && !disabled,
+        'bg-bolt-elements-item-backgroundDefault text-alpha-gray-20 dark:text-alpha-white-20 cursor-not-allowed':
+          disabled,
+      }, className)}
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const showWorkbench = useStore(workbenchStore.showWorkbench);
   const { showChat } = useStore(chatStore);
@@ -42,6 +70,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
             }
             workbenchStore.showWorkbench.set(!showWorkbench);
           }}
+          title="Hide / Show Editor"
         >
           <div className="i-ph:code-bold" />
         </Button>
@@ -55,31 +84,5 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         <span className="ml-2">Backup Project</span>
       </Button>
     </div>
-  );
-}
-
-interface ButtonProps {
-  active?: boolean;
-  disabled?: boolean;
-  children?: any;
-  onClick?: VoidFunction;
-  className?: string;
-}
-
-function Button({ active = false, disabled = false, children, onClick, className = '' }: ButtonProps) {
-  return (
-    <button
-      className={classNames('flex items-center p-1.5', {
-        'bg-bolt-elements-item-backgroundDefault hover:bg-bolt-elements-item-backgroundActive text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary':
-          !active,
-        'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': active && !disabled,
-        'bg-bolt-elements-item-backgroundDefault text-alpha-gray-20 dark:text-alpha-white-20 cursor-not-allowed':
-          disabled,
-      }, className)}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {children}
-    </button>
   );
 }
