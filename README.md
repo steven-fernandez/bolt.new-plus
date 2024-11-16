@@ -25,12 +25,9 @@ This fork of Bolt.new allows you to choose the LLM that you use for each prompt!
 - ✅ Add Editor fullscreen mode (@steven-fernandez)
 - ✅ Export project with metadata and chat history (@steven-fernandez)
 - ✅ Import project backups including chat history (@steven-fernandez)
-- ⬜ **HIGH PRIORITY** - Prevent Bolt from rewriting files as often (file locking and diffs)
-- ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
-- ⬜ **HIGH PRIORITY** Load local projects into the app
-- ⬜ **HIGH PRIORITY** - Attach images to prompts
-- ⬜ **HIGH PRIORITY** - Run agents in the backend as opposed to a single model call
-- ⬜ Mobile friendly
+- ⬜ Prevent Bolt from rewriting files as often (file locking and diffs)
+- ⬜ Better prompting for smaller LLMs (code window sometimes doesn't start)
+- ⬜ Run agents in the backend as opposed to a single model call
 - ⬜ LM Studio Integration
 - ⬜ Together Integration
 - ⬜ Azure Open AI API Integration
@@ -42,7 +39,7 @@ This fork of Bolt.new allows you to choose the LLM that you use for each prompt!
 - ⬜ Ability to revert code to earlier version
 - ⬜ Prompt caching
 - ⬜ Better prompt enhancing
-- ⬜ Have LLM plan the project in a MD file for better results/transparency
+- ⬜ Have LLM plan the project in a MD file for better results
 - ⬜ VSCode Integration with git-like confirmations
 - ⬜ Upload documents for knowledge - UI design templates, a code base to reference coding style, etc.
 - ⬜ Voice prompting
