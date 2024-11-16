@@ -124,9 +124,9 @@ export const EditorPanel = memo(
 
     return (
       <PanelGroup direction="vertical">
-        <Panel defaultSize={showTerminal ? DEFAULT_EDITOR_SIZE : 100} minSize={20}>
+        <Panel defaultSize={showTerminal ? DEFAULT_EDITOR_SIZE : 100} minSize={20} key="editor-panel">
           <PanelGroup direction="horizontal">
-            <Panel defaultSize={20} minSize={10} collapsible>
+            <Panel defaultSize={20} minSize={10} collapsible key="file-tree-panel">
               <div className="flex flex-col border-r border-bolt-elements-borderColor h-full">
                 <PanelHeader>
                   <div className="i-ph:tree-structure-duotone shrink-0" />
@@ -143,19 +143,19 @@ export const EditorPanel = memo(
                 />
               </div>
             </Panel>
-            <PanelResizeHandle />
-            <Panel className="flex flex-col" defaultSize={80} minSize={20}>
+            <PanelResizeHandle key="panel-resize-handle" />
+            <Panel className="flex flex-col" defaultSize={80} minSize={20} key="editor-content-panel">
               <PanelHeader className="overflow-x-auto">
                 {activeFileSegments?.length && (
                   <div className="flex items-center flex-1 text-sm">
                     <FileBreadcrumb pathSegments={activeFileSegments} files={files} onFileSelect={onFileSelect} />
                     {activeFileUnsaved && (
                       <div className="flex gap-1 ml-auto">
-                        <PanelHeaderButton onClick={onFileSave}>
+                        <PanelHeaderButton onClick={onFileSave} key="save-button">
                           <div className="i-ph:floppy-disk-duotone" />
                           Save
                         </PanelHeaderButton>
-                        <PanelHeaderButton onClick={onFileReset}>
+                        <PanelHeaderButton onClick={onFileReset} key="reset-button">
                           <div className="i-ph:clock-counter-clockwise-duotone" />
                           Reset
                         </PanelHeaderButton>
@@ -179,12 +179,13 @@ export const EditorPanel = memo(
             </Panel>
           </PanelGroup>
         </Panel>
-        <PanelResizeHandle />
+        <PanelResizeHandle key="terminal-resize-handle" />
         <Panel
           ref={terminalPanelRef}
           defaultSize={showTerminal ? DEFAULT_TERMINAL_SIZE : 0}
           minSize={10}
           collapsible
+          key="terminal-panel"
           onExpand={() => {
             if (!terminalToggledByShortcut.current) {
               workbenchStore.toggleTerminal(true);
@@ -203,10 +204,9 @@ export const EditorPanel = memo(
                   const isActive = activeTerminal === index;
 
                   return (
-                    <>
-                      {index == 0 ? (
+                    <div key={`terminal-${index}`}>
+                      {index === 0 ? (
                         <button
-                          key={index}
                           className={classNames(
                             'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full',
                             {
@@ -222,34 +222,39 @@ export const EditorPanel = memo(
                           Bolt Terminal
                         </button>
                       ) : (
-                        <>
-                          <button
-                            key={index}
-                            className={classNames(
-                              'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full',
-                              {
-                                'bg-bolt-elements-terminals-buttonBackground text-bolt-elements-textPrimary': isActive,
-                                'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
-                                  !isActive,
-                              },
-                            )}
-                            onClick={() => setActiveTerminal(index)}
-                          >
-                            <div className="i-ph:terminal-window-duotone text-lg" />
-                            Terminal {terminalCount > 1 && index}
-                          </button>
-                        </>
+                        <button
+                          className={classNames(
+                            'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full',
+                            {
+                              'bg-bolt-elements-terminals-buttonBackground text-bolt-elements-textPrimary': isActive,
+                              'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
+                                !isActive,
+                            },
+                          )}
+                          onClick={() => setActiveTerminal(index)}
+                        >
+                          <div className="i-ph:terminal-window-duotone text-lg" />
+                          Terminal {terminalCount > 1 && index}
+                        </button>
                       )}
-                    </>
+                    </div>
                   );
                 })}
-                {terminalCount < MAX_TERMINALS && <IconButton icon="i-ph:plus" size="md" onClick={addTerminal} />}
+                {terminalCount < MAX_TERMINALS && (
+                  <IconButton 
+                    icon="i-ph:plus" 
+                    size="md" 
+                    onClick={addTerminal}
+                    key="add-terminal-button"
+                  />
+                )}
                 <IconButton
                   className="ml-auto"
                   icon="i-ph:caret-down"
                   title="Close"
                   size="md"
                   onClick={() => workbenchStore.toggleTerminal(false)}
+                  key="close-terminal-button"
                 />
               </div>
               {Array.from({ length: terminalCount + 1 }, (_, index) => {
