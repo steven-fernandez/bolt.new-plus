@@ -187,6 +187,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                 )}
                 <IconButton
                   icon="i-ph:x-circle"
+                  title="Close Editor"
                   className="-mr-1"
                   size="xl"
                   onClick={() => {
