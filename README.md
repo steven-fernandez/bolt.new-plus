@@ -43,6 +43,7 @@ This fork of Bolt.new-plus allows you to choose the LLM that you use for each pr
 - ⬜ VSCode Integration with git-like confirmations
 - ⬜ Upload documents for knowledge - UI design templates, a code base to reference coding style, etc.
 - ⬜ Voice prompting
+- ⬜ Batch processing of prompts
 
 # Bolt.new: AI-Powered Full-Stack Web Development in the Browser
 
