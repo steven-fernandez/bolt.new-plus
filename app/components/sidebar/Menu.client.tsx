@@ -1,5 +1,5 @@
 import { motion, type Variants } from 'framer-motion';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
 import { IconButton } from '~/components/ui/IconButton';
@@ -41,6 +41,14 @@ export function Menu() {
   const [list, setList] = useState<ChatHistoryItem[]>([]);
   const [open, setOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<DialogContent>(null);
+  const [filterText, setFilterText] = useState('');
+
+  const filteredList = useMemo(() => {
+    if (!filterText.trim()) return list;
+    return list.filter(item => 
+      item.description?.toLowerCase().includes(filterText.toLowerCase())
+    );
+  }, [list, filterText]);
 
   const loadEntries = useCallback(() => {
     if (db) {
@@ -151,11 +159,30 @@ export function Menu() {
             Start new project
           </a>
         </div>
+        <div className="px-4 mb-2">
+          <input
+            type="text"
+            placeholder="Search projects..."
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+            className="w-full px-3 py-2 
+              bg-bolt-elements-background-depth-1
+              border border-bolt-elements-borderColor
+              rounded-md
+              text-bolt-elements-textPrimary
+              dark:text-white
+              placeholder:text-bolt-elements-textTertiary
+              focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus
+              text-sm"
+          />
+        </div>
         <div className="text-bolt-elements-textPrimary font-medium pl-6 pr-5 my-2">Your Projects</div>
         <div className="flex-1 overflow-scroll pl-4 pr-5 pb-5">
-          {list.length === 0 && <div className="pl-2 text-bolt-elements-textTertiary">No previous conversations</div>}
+          {filteredList.length === 0 && <div className="pl-2 text-bolt-elements-textTertiary">
+            {list.length === 0 ? "No previous conversations" : "No matching projects found"}
+          </div>}
           <DialogRoot open={dialogContent !== null}>
-            {binDates(list).map(({ category, items }) => (
+            {binDates(filteredList).map(({ category, items }) => (
               <div key={category} className="mt-4 first:mt-0 space-y-1">
                 <div className="text-bolt-elements-textTertiary sticky top-0 z-1 bg-bolt-elements-background-depth-2 pl-2 pt-2 pb-1">
                   {category}
