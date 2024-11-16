@@ -6,9 +6,16 @@ import { workbenchStore } from '~/lib/stores/workbench';
 interface EditorOptionsDropdownProps {
   isSyncing?: boolean;
   onSyncFiles: () => void;
+  onDownloadFiles: () => void;
+  onToggleTerminal: () => void;
 }
 
-export function EditorOptionsDropdown({ isSyncing, onSyncFiles }: EditorOptionsDropdownProps) {
+export function EditorOptionsDropdown({ 
+  isSyncing, 
+  onSyncFiles, 
+  onDownloadFiles, 
+  onToggleTerminal 
+}: EditorOptionsDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const showTerminal = useStore(workbenchStore.showTerminal);
@@ -60,7 +67,7 @@ export function EditorOptionsDropdown({ isSyncing, onSyncFiles }: EditorOptionsD
           <div className="py-1">
             <button
               onClick={() => {
-                workbenchStore.downloadZip();
+                onDownloadFiles();
                 setIsOpen(false);
               }}
               className="w-full text-left px-4 py-2 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary bg-bolt-elements-background-depth-2 hover:bg-bolt-elements-background-depth-3"
@@ -85,7 +92,7 @@ export function EditorOptionsDropdown({ isSyncing, onSyncFiles }: EditorOptionsD
             </button>
             <button
               onClick={() => {
-                workbenchStore.toggleTerminal(!showTerminal);
+                onToggleTerminal();
                 setIsOpen(false);
               }}
               className="w-full text-left px-4 py-2 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary bg-bolt-elements-background-depth-2 hover:bg-bolt-elements-background-depth-3"
